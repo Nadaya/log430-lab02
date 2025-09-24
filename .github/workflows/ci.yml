@@ -29,5 +29,27 @@ jobs:
           echo "REDIS_HOST=127.0.0.1" >> .env
           echo "REDIS_PORT=6379" >> .env
           echo "REDIS_DB=0" >> .env
+     - name: Exécuter les tests
+        working-directory: src
+        run: |
+          python3 -m pytest
 
+  deploy:
+    runs-on: self-hosted
+    needs: test   # Ne se lance que si les tests passent
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Déploiement local
+        run: |
+          cd $GITHUB_WORKSPACE
+          echo "Déploiement sur la VM en cours..."
+
+          # Deploiement avec Docker
+          docker compose down || true
+          docker compose up -d --build
+
+          # ou si deploiement sans Docker
+          # cd src
+          # python3.11 store_manager.py
 
