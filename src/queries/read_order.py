@@ -21,8 +21,11 @@ def get_orders_from_mysql(limit=9999):
 def get_orders_from_redis(limit=9999):
     """Get last X orders"""
     # TODO: écrivez la méthode
-    print(limit)
-    return []
+    r = get_redis_conn()
+    keys = r.keys()
+    keys = sorted(keys, reverse=True)[:limit]
+    orders = [r.hgetall(key) for key in keys]
+    return orders
 
 def get_highest_spending_users():
     """Get report of best selling products"""
