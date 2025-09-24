@@ -21,10 +21,37 @@ def get_orders_from_mysql(limit=9999):
 def get_orders_from_redis(limit=9999):
     """Get last X orders"""
     # TODO: écrivez la méthode
-    r = get_redis_conn()
-    keys = r.keys()
-    keys = sorted(keys, reverse=True)[:limit]
-    orders = [r.hgetall(key) for key in keys]
+    r = get_redis_conn()    # récupère la connexion Redis
+    keys = r.keys(f"order:*")
+    if not keys:
+        return []
+
+    # on extrait les IDs et on trie par ordre décroissant
+    order_ids = []
+    for key in keys:
+        try:
+            order_id = int(key.decode().split(":")[1])
+            order_ids.append(order_id)
+        except Exception as e:
+            continue
+
+    order_ids = sorted(order_ids, reverse=True)[:limit]
+    order_ids = [f'order:{oid}' for oid in order_ids]
+
+    # on récupère les données des commandes
+    orders = []
+    for order_key in order_ids:
+        order_data = r.hgetall(order_key)
+        if order_data:
+            order = {k.decode(): v.decode() for k, v in order_data.items()}
+            order['id'] = int(order_key.decode().split(":")[1])
+            order['user_id'] = int(order['user_id'])
+            order['total_amount'] = float(order['total_amount'])
+            orders.append(order)
+        except (ValueError, TypeError) as e:
+                    print(f"Erreur de conversion pour {order_key}: {e}")
+                    continue
+        
     return orders
 
 def get_highest_spending_users():
