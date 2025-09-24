@@ -64,7 +64,7 @@ def add_order(user_id: int, items: list):
 
         session.commit()
 
-        # TODO: ajouter la commande à Redis
+        # TODO: ajouter la commande à Redis --> FAIT
         add_order_to_redis(order_id, user_id, total_amount, items)
 
         return order_id
@@ -85,7 +85,7 @@ def delete_order(order_id: int):
             session.delete(order)
             session.commit()
 
-            # TODO: supprimer la commande à Redis
+            # TODO: supprimer la commande à Redis --> FAIT
             delete_order_from_redis(order_id)
             return 1  
         else:
@@ -126,10 +126,9 @@ def sync_all_orders_to_redis():
     try:
         if len(orders_in_redis) == 0:
             # mysql
-            # orders_from_mysql = [] <--- ligne initiale
             orders_from_mysql = get_orders_from_mysql(limit=9999)
             for order in orders_from_mysql:
-                # TODO: terminez l'implementation
+                # TODO: terminez l'implementation --> FAIT
                 key = f"order:{order.id}"
                 r.hset(key, mapping={
                     "user_id" : order.user_id, 

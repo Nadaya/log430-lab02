@@ -36,7 +36,6 @@ def list_orders_from_redis(limit):
     """Get last X orders from Redis, use ReadOrder model"""
     try:
         return get_orders_from_redis(limit)
-        # return get_orders_from_mysql(limit) ancienne ligne --- IGNORE ---
     except Exception as e:
         print(e)
         return "Une erreur s'est produite lors de la requête de base de données. Veuillez consulter les logs pour plus d'informations."

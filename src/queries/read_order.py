@@ -7,6 +7,8 @@ Auteurs : Gabriel C. Ullmann, Fabio Petrillo, 2025
 from db import get_sqlalchemy_session, get_redis_conn
 from sqlalchemy import desc
 from models.order import Order
+from models.user import User
+from collections import defaultdict
 
 def get_order_by_id(order_id):
     """Get order by ID from Redis"""
@@ -20,8 +22,8 @@ def get_orders_from_mysql(limit=9999):
 
 def get_orders_from_redis(limit=9999):
     """Get last X orders"""
-    # TODO: écrivez la méthode
-    r = get_redis_conn()    # récupère la connexion Redis
+    # TODO: écrivez la méthode --> FAIT 
+    r = get_redis_conn()   
     keys = r.keys(f"order:*")
     if not keys:
         return []
@@ -53,6 +55,19 @@ def get_orders_from_redis(limit=9999):
 
 def get_highest_spending_users():
     """Get report of best selling products"""
-    # TODO: écrivez la méthode
+    # TODO: écrivez la méthode --> FAIT
     # triez le résultat par nombre de commandes (ordre décroissant)
-    return []
+    session = get_sqlalchemy_session()
+    orders = session.query(Order).all()
+
+    expenses_by_user = defaultdict(float)
+    for order in orders:
+        expenses_by_user[order.user_id] += order.total_amount
+    highest_spending_users = sorted(expenses_by_user.items(), key=lambda item: item[1], reverse=True)
+
+    # on récupère les noms 
+    result = []
+    for user_id in highest_spending_users:
+        user = session.query(User).filter_by(id=user_id[0]).first()
+        result.append({'name': user.name})
+    return result
