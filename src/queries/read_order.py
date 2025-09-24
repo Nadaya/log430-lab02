@@ -48,9 +48,6 @@ def get_orders_from_redis(limit=9999):
             order['user_id'] = int(order['user_id'])
             order['total_amount'] = float(order['total_amount'])
             orders.append(order)
-        except (ValueError, TypeError) as e:
-                    print(f"Erreur de conversion pour {order_key}: {e}")
-                    continue
         
     return orders
 

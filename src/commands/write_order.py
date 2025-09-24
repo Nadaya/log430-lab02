@@ -100,11 +100,22 @@ def delete_order(order_id: int):
 def add_order_to_redis(order_id, user_id, total_amount, items):
     """Insert order to Redis"""
     r = get_redis_conn()
+    key = f"order:{order_id}"
+
+    r.hset(key, mapping={
+        "id" : order_id,
+        "user_id" : user_id, 
+        "total_amount" : total_amount,
+        "items" : str(items) })
     print(r)
+    return True
 
 def delete_order_from_redis(order_id):
     """Delete order from Redis"""
-    pass
+    r = get_redis_conn()
+    key = f"order:{order_id}"
+    r.delete(key)
+    return True
 
 def sync_all_orders_to_redis():
     """ Sync orders from MySQL to Redis """
